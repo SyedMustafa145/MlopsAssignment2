@@ -1,64 +1,64 @@
-import pickle
-import requests
+import json
+
+from collections import namedtuple
+from json import JSONEncoder
+from flask import Flask,request
+from flasklstm import lstm_open_predict, lstm_low_predict, lstm_close_predict, lstm_high_predict
+from flask_cors import CORS
 import pandas as pd
 import numpy as np
-from flask import Flask, jsonify, request
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
-
-scaler = MinMaxScaler(feature_range=(0, 1))
-
 app = Flask(__name__)
 
-# load the trained model from the pickle file
-with open('model.pkl', 'rb') as file:
-    model = pickle.load(file)
-
-@app.route('/predict', methods=['GET'])
-def predict():
-    url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=EUR&to_symbol=USD&apikey=20MAD65B9CGJYW3K'
-    r = requests.get(url)
-    data = r.json()
-
-    # extract the Time Series FX (Daily) data from the JSON response
-    daily_data = data['Time Series FX (Daily)']
-    # convert the daily_data dictionary into a pandas DataFrame
-    df = pd.DataFrame.from_dict(daily_data, orient='index')
-    # reset the index to make the date column a regular column
-    df = df.reset_index()
-    # rename the columns to more descriptive names
-    df = df.rename(
-        columns={'index': 'Date', '1. open': 'Open', '2. high': 'High', '3. low': 'Low', '4. close': 'Close'})
-    # convert the Open, High, Low, and Close columns from strings to floats
-    df['Open'] = df['Open'].astype(float)
-    df['High'] = df['High'].astype(float)
-    df['Low'] = df['Low'].astype(float)
-    df['Close'] = df['Close'].astype(float)
-
-    # get the input data for prediction from the first 10 rows of the DataFrame
-    input_data = df.head(10)['Open'].values
-    input_data = input_data.reshape(1, -1)
-
-    # make a prediction using the model
-    predictions = model.predict(input_data)
-    predictions = scaler.inverse_transform(predictions)
-
-    # create a response object
-    response = {
-        'prediction': predictions[0][0]
-    }
-
-    # return the response as a JSON object
-    return jsonify(response)
-
-
-@app.route('/')
-# ‘/’ URL is bound with hello_world() function.
+CORS(app)
+df = pd.read_csv('eurusd.csv')
+data_close = df.filter(['close'])
+data_high = df.filter(['high'])
+data_low = df.filter(['low'])
+data_open = df.filter(['open'])
+import json
+@app.route("/")
 def hello_world():
-    return 'Hello World'
+    return "<p>Hello, World!</p>"
+
+@app.route("/predictclose")
+def predictclose():
+    # get the last 10 closing prices from the request arguments
+    cp1 = float(request.args.get('cp1'))
+    cp2 = float(request.args.get('cp2'))
+    cp3 = float(request.args.get('cp3'))
+    cp4 = float(request.args.get('cp4'))
+    cp5 = float(request.args.get('cp5'))
+    cp6 = float(request.args.get('cp6'))
+    cp7 = float(request.args.get('cp7'))
+    cp8 = float(request.args.get('cp8'))
+    cp9 = float(request.args.get('cp9'))
+    cp10 = float(request.args.get('cp10'))
+
+    last_10_close = np.array([cp1, cp2, cp3, cp4, cp5, cp6, cp7, cp8, cp9, cp10])
+
+    # call the LSTM model to predict the next closing price
+    result_close = np.round(lstm_close_predict(last_10_close), 5) 
+    
+    print("Calling from server.py")
+    print(result_close)
+    
+    # create a dictionary containing the arrays
+    response = {
+        "result": result_close.round(5).tolist()
+    }
+    
+    # convert the dictionary to a JSON string and return it as the response
+    return json.dumps(response)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+
+
+
+@app.route("/predict")
+def predict():
+    last_20_close = df['close'].tail(10).values
+
+    # Select the last 20 values from the "high" column
