@@ -49,7 +49,7 @@ def predictclose():
         "result": result_close.round(5).tolist()
     }
     
-    # convert the dictionary to a JSON string and return it as the response
+    
     return json.dumps(response)
 
 
