@@ -3,7 +3,7 @@ import json
 from collections import namedtuple
 from json import JSONEncoder
 from flask import Flask,request
-from flasklstm import lstm_open_predict, lstm_low_predict, lstm_close_predict, lstm_high_predict
+from flasklstm import lstm_close_predict
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
@@ -44,7 +44,7 @@ def predictclose():
         "result": result_close.round(5).tolist()
     }
     
-    
+    # convert the dictionary to a JSON string and return it as the response
     return json.dumps(response)
 
 
@@ -52,8 +52,9 @@ def predictclose():
 
 
 
-@app.route("/predict")
-def predict():
-    last_20_close = df['close'].tail(10).values
+    
 
-   
+
+if __name__  == '__main__':
+    app.run(port=5001, debug=True)
+
