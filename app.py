@@ -61,4 +61,4 @@ def predictclose():
 def predict():
     last_20_close = df['close'].tail(10).values
 
-    # Select the last 20 values from the "high" column
+   
