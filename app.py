@@ -12,11 +12,6 @@ from sklearn.preprocessing import MinMaxScaler
 app = Flask(__name__)
 
 CORS(app)
-df = pd.read_csv('eurusd.csv')
-data_close = df.filter(['close'])
-data_high = df.filter(['high'])
-data_low = df.filter(['low'])
-data_open = df.filter(['open'])
 import json
 @app.route("/")
 def hello_world():
