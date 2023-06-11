@@ -9,7 +9,7 @@ pipeline {
     }
     stage('Deploy') {
       steps {
-        bat 'docker run -d -p 8000:5000 myflaskapp'
+        bat 'docker run -d -p 8086:8086 myflaskapp'
         
       }
     }
